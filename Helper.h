@@ -8,6 +8,8 @@ This file contains the Image object and some helper functions to read and write 
 #include <iostream>
 #include <OpenImageIO/imageio.h>
 #include <string>
+#include <math.h>
+#include "rgbToHsv.cpp"
 using namespace std;
 OIIO_NAMESPACE_USING;
 
@@ -111,6 +113,46 @@ class Image {
           break;
         default:
           break;
+      }
+    }
+
+    // Converts to a 4 channel image
+    void convertToFourChannels() {
+      if (channels == 4) {
+        printf("Image already 4 channels, returning.\n");
+        return;
+      }
+      double h,s,v;
+      unsigned char * pixels2 = new unsigned char[width*height*4];
+      int j = 0;
+      for (int i = 0; i < (width * height * channels) - channels; i+=channels) {
+        RGBtoHSV(pixels[i],pixels[i+1],pixels[i+2],h,s,v);
+        pixels2[j] = pixels[i];
+        pixels2[j+1] = pixels[i+1];
+        pixels2[j+2] = pixels[i+2];
+        pixels2[j+3] = 255; 
+        j += 4;
+      }
+      pixels = pixels2;
+      channels = 4;
+    }
+
+    // Chromakey the image based on hsv values
+    void chromaKey() {
+      if (channels != 4) {
+        printf("Can't chromakey without 4 channels\n");
+        return;
+      }
+      double h,s,v;
+
+      for (int i = 0; i < (width * height * channels) - channels; i+=channels) {
+        RGBtoHSV(pixels[i],pixels[i+1],pixels[i+2],h,s,v);
+        // printf("%f\n", abs(h-120));
+        if (abs(h - 120) <= 40) {
+         pixels[i+3] = 0;
+        } else {
+         pixels[i+3] = 255;
+       }
       }
     }
 };

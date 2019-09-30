@@ -7,4 +7,7 @@ int main (int argc, char * argv[]) {
     exit(1);
   }
   img = Image(argv[1]);
+  img.convertToFourChannels();
+  img.chromaKey();
+  img.writeImage(argv[2]);
 }
