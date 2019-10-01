@@ -10,10 +10,14 @@ int main(int argc, char * argv[]) {
   }
   Image A = Image(argv[1]);
   Image B = Image(argv[2]);
-  B.composite(A);
-  image = B;
-  if (argv == 4) {
-    image.write(argv[3]);
+  if (A.width > B.width || A.height > B.height) {
+    cout << "Warning, image A has a larger dimension than image B, the image may appear skewed.\n";
+  }
+  B.convertToFourChannels();  //Convert the background to a 4 channel image if it isn't already
+  B.composite(A); // Composite will overlay A onto B
+  image = B;  // The drawImage function relies on a global image named image
+  if (argc == 4) {
+    image.writeImage(argv[3]);
   }
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGBA);

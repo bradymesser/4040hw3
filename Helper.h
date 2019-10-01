@@ -59,7 +59,7 @@ class Image {
       const int channels = this->channels;  // RGB
       ImageOutput *out = ImageOutput::create (filename);
       if (!out) {
-          cout << "EXITING" << endl;
+          cout << "EXITING, could not open output file" << endl;
           exit(1);
       }
       ImageSpec spec (xres, yres, channels, TypeDesc::UINT8);
@@ -115,7 +115,7 @@ class Image {
           return;
       }
     }
-    // This should display the image on screen but I have not tested it yet
+    // This just draws the pixels, it cannot be used as the callback function for drawing
     void draw() {
       switch (channels) {
         case 1:
@@ -162,8 +162,14 @@ class Image {
     // Chromakey the image based on hsv values and the thresholds defined in thresholds.txt
     void chromaKey() {
       if (channels != 4) {
-        printf("Can't chromakey without 4 channels\n");
-        return;
+        printf("Can't chromakey without 4 channels, would you like the image to be converted to 4 channels for you? (y/n)\n");
+        char temp;
+        cin >> temp;
+        if (temp != 'y' || temp != 'Y') {
+          return;
+        }
+        // if the user agreed, convert the image to 4 channels and continue execution
+        convertToFourChannels();
       }
       ifstream in;
       in.open("thresholds.txt");
@@ -176,15 +182,60 @@ class Image {
       for (int i = 0; i < (width * height * channels) - channels; i+=channels) {
         RGBtoHSV(pixels[i],pixels[i+1],pixels[i+2],h,s,v);
         if (abs(h - 120) <= hT && (abs(1.0 - s) <= sT || abs(1.0 - v) <= vT)) {
-         pixels[i+3] = 0;
+         pixels[i+3] = 0; //TODO: Make alpha be other values than 0 and 255 (non binary)
         } else {
          pixels[i+3] = 255;
        }
       }
     }
 
+    //First premultiply, then perform the over operation for A over B
+    // Premultiply: Ca = Ca * alpha/255
+    //( C = Ca + (1-alpha a) Cb)
     void composite(Image A) {
+      if (A.channels != 4) {
+        cout << "Can't perform A over B if A isn't 4 channels.  \nWould you like the image to be converted to 4 channels and chromakeyed for you? (y/n)\n";
+        char temp;
+        cin >> temp;
+        if (temp != 'y' && temp != 'Y') {
+          return;
+        }
+        A.convertToFourChannels();
+        A.chromaKey();
+      }
 
+      double r, g, b, a;
+      double newR, newG, newB, newA;
+      int j = 0;
+      int currRow = 0;
+      int w = A.width * A.channels;
+      for (int i = 0; i < A.width * A.height * A.channels; i+=A.channels) {
+        if (i > w + (w * currRow)) {
+          currRow++;
+          j = (width * channels) * currRow;
+        }
+        // first premultiply
+        a = A.pixels[i+3] / 255;
+        // if the pixel is transparent on A, do nothing to B
+        // TODO: Once alpha is non binary (0 and 255) this will need to change
+        if (a == 0) {
+          j+= channels;
+          continue;
+        }
+        r = A.pixels[i] * a;
+        g = A.pixels[i+1] * a;
+        b = A.pixels[i+2] * a;
+        // Perform over operation
+        newR = r + (1-a) * pixels[i];
+        newG = g + (1-a) * pixels[i+1];
+        newB = b + (1-a) * pixels[i+2];
+        newA = a + (1-a) * pixels[i+3];
+        pixels[j] = newR;
+        pixels[j+1] = newG;
+        pixels[j+2] = newB;
+        pixels[j+3] = newA;
+        j+= channels;
+      }
     }
 };
 
