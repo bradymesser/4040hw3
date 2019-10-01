@@ -6,6 +6,7 @@ This file contains the Image object and some helper functions to read and write 
 
 #include <GL/glut.h>
 #include <iostream>
+#include <fstream>
 #include <OpenImageIO/imageio.h>
 #include <string>
 #include <math.h>
@@ -65,9 +66,11 @@ class Image {
       out->open (filename, spec);
       out->write_image (TypeDesc::UINT8, pixels);
       out->close ();
-      ImageOutput::destroy (out);
+      // ImageOutput::destroy (out);
+      ImageOutput::destroy(out);
     }
 
+    // Inverts the colors of the image, the switch isn't necessary and can be replaced with a single for loop
     void invert() {
       switch (channels) {
         case 1:
@@ -94,6 +97,7 @@ class Image {
       }
     }
 
+    // This should display the image on screen but I have not tested it yet
     void draw() {
       switch (channels) {
         case 1:
@@ -130,25 +134,30 @@ class Image {
         pixels2[j] = pixels[i];
         pixels2[j+1] = pixels[i+1];
         pixels2[j+2] = pixels[i+2];
-        pixels2[j+3] = 255; 
+        pixels2[j+3] = 255;
         j += 4;
       }
       pixels = pixels2;
       channels = 4;
     }
 
-    // Chromakey the image based on hsv values
+    // Chromakey the image based on hsv values and the thresholds defined in thresholds.txt
     void chromaKey() {
       if (channels != 4) {
         printf("Can't chromakey without 4 channels\n");
         return;
       }
+      ifstream in;
+      in.open("thresholds.txt");
+      double hT = 40.0;
+      double sT = 40.0;
+      double vT = 40.0;  // the threshold values for h s and v
+      in >> hT >> sT >> vT;
       double h,s,v;
 
       for (int i = 0; i < (width * height * channels) - channels; i+=channels) {
         RGBtoHSV(pixels[i],pixels[i+1],pixels[i+2],h,s,v);
-        // printf("%f\n", abs(h-120));
-        if (abs(h - 120) <= 40) {
+        if (abs(h - 120) <= hT && (abs(1.0 - s) <= sT || abs(1.0 - v) <= vT)) {
          pixels[i+3] = 0;
         } else {
          pixels[i+3] = 255;

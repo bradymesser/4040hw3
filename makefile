@@ -1,3 +1,4 @@
+
 #sample makefile for CPSC 4040/6040
 #author: Ioannis Karamouzas (ioannis@clemson.edu)
 
@@ -24,9 +25,15 @@ PROJECT = alphamask
 OBJECTS = alphamask.o
 
 #this does the linking step
-all: ${PROJECT}
+alpha: ${PROJECT}
 ${PROJECT} : ${OBJECTS}
 	${CC} ${CFLAGS} -o ${PROJECT} ${OBJECTS} ${LDFLAGS}
+
+# PROJECT2 = compose
+# OBJECTS2 = compose.o
+# compose: ${PROJECT2}
+# ${PROJCT2} : ${OBJECTS2}
+# 	${CC} ${CFLAGS} -o ${PROJECT2} ${OBJECTS2} ${LDFLAGS}
 
 #this generically compiles each .cpp to a .o file
 %.o: %.cpp
@@ -40,3 +47,7 @@ ${PROJECT} : ${OBJECTS}
 #this will clean up all temporary files created by make all
 clean:
 	rm -f core.* *.o *~ ${PROJECT}
+	rm -f core.* *.o *~ compose
+compose:
+	g++ -c -g compose.cpp
+	g++ -g -o compose compose.o -L /usr/lib64/ -lglut -lGL -lGLU -lOpenImageIO -lm

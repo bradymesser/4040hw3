@@ -10,4 +10,5 @@ int main (int argc, char * argv[]) {
   img.convertToFourChannels();
   img.chromaKey();
   img.writeImage(argv[2]);
+  return 1;
 }
