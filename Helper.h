@@ -14,8 +14,7 @@ This file contains the Image object and some helper functions to read and write 
 using namespace std;
 OIIO_NAMESPACE_USING;
 
-// The struct that represents an image, can be converted to a class later and
-// the read and write image functions can be encapsulated within the class
+// The class that represents an image
 class Image {
   private:
   public:
@@ -97,24 +96,6 @@ class Image {
       }
     }
 
-    void handleKey(unsigned char key, int x, int y) {
-      switch(key){
-        case 'q':		// q - quit
-        case 'Q':
-        case 27:		// esc - quit
-          exit(0);
-        case 'w':
-        case 'W': {
-          string temp;
-          cout << "Enter the name of the output file: ";
-          cin >> temp;
-          writeImage(temp);
-          break;
-        }
-        default:		// not a valid key -- just ignore it
-          return;
-      }
-    }
     // This just draws the pixels, it cannot be used as the callback function for drawing
     void draw() {
       switch (channels) {
@@ -141,7 +122,6 @@ class Image {
     // Converts to a 4 channel image
     void convertToFourChannels() {
       if (channels == 4) {
-        printf("Image already 4 channels, returning.\n");
         return;
       }
       double h,s,v;
@@ -165,18 +145,24 @@ class Image {
         printf("Can't chromakey without 4 channels, would you like the image to be converted to 4 channels for you? (y/n)\n");
         char temp;
         cin >> temp;
-        if (temp != 'y' || temp != 'Y') {
+        if (temp != 'y' && temp != 'Y') {
           return;
         }
         // if the user agreed, convert the image to 4 channels and continue execution
         convertToFourChannels();
       }
       ifstream in;
-      in.open("thresholds.txt");
-      double hT = 40.0;
-      double sT = 40.0;
-      double vT = 40.0;  // the threshold values for h s and v
-      in >> hT >> sT >> vT;
+      in.open("thresholds.txt"); 
+      // the threshold values for h s and v
+      double hT = 50.0;
+      double sT = 0.7;
+      double vT = 0.2;
+      if (in != NULL) {
+        // If there is a thresholds.txt file, read in the values and use them
+        in >> hT >> sT >> vT;
+      } else {
+        cout << "Could not find thresholds.txt, using default values.\n";
+      }
       double h,s,v;
 
       for (int i = 0; i < (width * height * channels) - channels; i+=channels) {
@@ -189,9 +175,8 @@ class Image {
       }
     }
 
-    //First premultiply, then perform the over operation for A over B
-    // Premultiply: Ca = Ca * alpha/255
-    //( C = Ca + (1-alpha a) Cb)
+    // Uses the current image object as the background (B), and overlays the parameter image (A)
+    // The result is an image with A composited onto B (A over B)
     void composite(Image A) {
       if (A.channels != 4) {
         cout << "Can't perform A over B if A isn't 4 channels.  \nWould you like the image to be converted to 4 channels and chromakeyed for you? (y/n)\n";
