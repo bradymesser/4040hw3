@@ -2,6 +2,9 @@
 Brady Messer (wmesser@clemson.edu)
 CPSC 4040 HW1 Fall 2019
 This file contains the Image object and some helper functions to read and write images
+The name of the keyboard callback function is: handleKey
+The name of the drawImage callback function is: drawImage
+The name of the reshape callback function is: handleReshape
 */
 
 #include <GL/glut.h>
