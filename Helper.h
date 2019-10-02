@@ -244,6 +244,10 @@ void handleKey(unsigned char key, int x, int y) {
       image.writeImage(temp);
       break;
     }
+    case 'i':
+    case 'I':
+      image.invert();
+      break;
     default:		// not a valid key -- just ignore it
       return;
   }
