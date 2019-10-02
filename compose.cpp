@@ -1,7 +1,6 @@
 #include "Helper.h"
 int WIDTH = 500;
 int HEIGHT = 500;
-// Image image = Image();
 
 int main(int argc, char * argv[]) {
   if (argc < 3 || argc > 4) {

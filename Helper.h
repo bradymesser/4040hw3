@@ -152,14 +152,15 @@ class Image {
         convertToFourChannels();
       }
       ifstream in;
-      in.open("thresholds.txt"); 
+      in.open("thresholds.txt");
       // the threshold values for h s and v
-      double hT = 50.0;
-      double sT = 0.7;
-      double vT = 0.2;
+      double hV = 120.0; //The desired color, 120 hue is green
+      double hT = 50.0; //threshold (hue's within the range of hT are valid)
+      double sT = 0.3; // minimum desired saturation
+      double vT = 0.8; // minimum desired value
       if (in != NULL) {
         // If there is a thresholds.txt file, read in the values and use them
-        in >> hT >> sT >> vT;
+        in >> hV >> hT >> sT >> vT;
       } else {
         cout << "Could not find thresholds.txt, using default values.\n";
       }
@@ -167,7 +168,7 @@ class Image {
 
       for (int i = 0; i < (width * height * channels) - channels; i+=channels) {
         RGBtoHSV(pixels[i],pixels[i+1],pixels[i+2],h,s,v);
-        if (abs(h - 120) <= hT && (abs(1.0 - s) <= sT || abs(1.0 - v) <= vT)) {
+        if (abs(h - hV) <= hT && (s >= sT || v >= vT)) {
          pixels[i+3] = 0; //TODO: Make alpha be other values than 0 and 255 (non binary)
         } else {
          pixels[i+3] = 255;

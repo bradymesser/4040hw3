@@ -2,13 +2,16 @@ alphamask:
   - To run, compile the program with `make alpha` then run:
     ./alphamask input.img output.img
     (ex: ./alphamask hand.jpg out.png)
-  - the thresholds.txt file contains 3 doubles, each on a different line
-    line 1 is hue, line 2 is saturation, and line 3 is value, change these values
-    to change the screening behavior of the program (blue screen green screen etc...)
-    The recommended thresholds for green screening are the following:
+  - the thresholds.txt file contains 4 doubles, each on a different line
+    line 1 is hue value (the desired color), line 2 is the threshold for hue
+    (range of acceptible values), line 3 is minimum desired saturation, and line 4 is
+    minimum desired value, change these values to change the screening behavior of the
+    program (blue screen green screen etc...) The recommended thresholds for green
+    screening are the following:
+120.0
 50.0
-0.7
-0.2
+0.3
+0.8
     The program will break if you put anything other than numbers in this file,
     please don't do that.
 
