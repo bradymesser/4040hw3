@@ -72,30 +72,10 @@ class Image {
       ImageOutput::destroy(out);
     }
 
-    // Inverts the colors of the image, the switch isn't necessary and can be replaced with a single for loop
+    // Inverts the colors of the image
     void invert() {
-      switch (channels) {
-        case 1:
-    			// set unpack alignment to 1 so that rows aren't skipped in the pixmap
-    			for (int i = 0; i < width * height; i++) {
-    				pixels[i] = 255 - pixels[i];
-    			}
-    			break;
-        case 2:
-    			// I'm not sure if 2 channels is a case but I implemented it anyways
-          break;
-        case 3:
-    			for (int i = 0; i < width * height * channels; i++) {
-    				pixels[i] = 255 - pixels[i];
-    			}
-          break;
-        case 4:
-    			for (int i = 0; i < width * height * channels; i++) {
-    				pixels[i] = 255 - pixels[i];
-    			}
-          break;
-        default:
-          break;
+      for (int i = 0; i < width * height * channels; i++) {
+        pixels[i] = 255 - pixels[i];
       }
     }
 

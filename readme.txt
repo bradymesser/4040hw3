@@ -1,3 +1,8 @@
+I saved all my test images in a folder labeled testImages, to run the programs
+with an image from one of these folders just prepend testImages/ to the name of
+the file.
+ex. ./alphamask testImages/hand.jpg out.jpg
+
 alphamask:
   - To run, compile the program with `make alpha` then run:
     ./alphamask input.img output.img
